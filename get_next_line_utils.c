@@ -1,11 +1,13 @@
 #include "get_next_line.h"
+#include <unistd.h>
+#include <stdio.h>
 
 int	ft_strlen(char *s)
 {
 	int	n;
 
 	n = 0;
-	while ((*(s + n)) != '\0')
+	while (s[n] != 0)
 		n++;
 	return (n);
 }
@@ -34,7 +36,7 @@ char	*ft_strjoin(char *line, char *str)
 
 	a = 0;
 	b = 0;
-	while (str[a] != 0 || str[a] != '\n')
+	while (str[a] != 0 && str[a] != '\n')
 		a++;
 	temp = malloc(ft_strlen(line) + a + 1);
 	temp[ft_strlen(line) + a] = '\0';
@@ -44,12 +46,13 @@ char	*ft_strjoin(char *line, char *str)
 		temp[a] = line[a];
 		a++;
 	}
-	while (str[b] != 0 || str[b] != '\n')
+	while (str[b] != 0 && str[b] != '\n')
 	{
 		temp[a + b] = str[b];
 		b++;
 	}
 	free(line);
+	line = malloc(sizeof(char *));
 	return (temp);
 }
 

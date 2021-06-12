@@ -7,5 +7,6 @@ int		get_next_line(int fd, char **line);
 char	*ft_strdup(char *s1);
 char	*ft_strjoin(char *line, char *str);
 int		ft_strlen(char *s);
+int		ft_search(char *s, char c);
 
 #endif
