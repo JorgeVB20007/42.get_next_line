@@ -14,21 +14,23 @@ int	ft_strlen(char *s)
 	return (n);
 }
 
-int	ft_search(char *str, char c)
+int	ft_search(char *str)
 {
 	int	a;
 
 	a = 0;
+	if (!str)
+		return (-1);
 	while (str[a])
 	{
-		if (str[a] == c)
+		if (str[a] == '\n')
 			return (a);
 		a++;
 	}
 	return (-1);
 }
 
-char	ft_join(char *orig, char *add)
+char	*ft_join(char *orig, char *add)
 {
 	char	*result;
 	int		a;
@@ -60,10 +62,11 @@ char	*linefinder(char *memory)
 	char	*str;
 
 	a = 0;
-	if (ft_search(memory, '\n') >= 0)
-		a = ft_search(memory, '\n');
+	if (ft_search(memory) >= 0)
+		a = ft_search(memory);
 	else
 		a = ft_strlen(memory);
+	printf("%s", memory);
 	str = malloc(a + 1);
 	a = 0;
 	while (memory[a] != '\n' || memory[a] != 0)
@@ -82,8 +85,8 @@ char	*memfinder(char *memory)
 	char	*str;
 
 	a = 0;
-	if (ft_search(memory, '\n') >= 0)
-		a = ft_search(memory, '\n');
+	if (ft_search(memory) >= 0)
+		a = ft_search(memory);
 	else
 		a = ft_strlen(memory);
 	b = ft_strlen(memory);
@@ -110,7 +113,7 @@ int	get_next_line(int fd, char **line)
 	temp = malloc(BUFFER_SIZE + 1);
 	if (!temp)
 		return (-1);
-	while (readresult > 0 && ft_search(memory, '\n') != -1)
+	while ((readresult > 0) && (ft_search(memory) == -1))
 	{
 		readresult = read(fd, temp, BUFFER_SIZE);
 		if (readresult <= -1)
@@ -121,7 +124,27 @@ int	get_next_line(int fd, char **line)
 		temp[readresult] = 0;
 		memory = ft_join(memory, temp);
 	}
+	write(1, " :D ", 4);
 	*line = linefinder(memory);
 	memory = memfinder(memory);
 	free (temp);
+	return (readresult);
+}
+
+int main()
+{
+	int a = 1;
+	char **line;
+	int fd = 1;
+
+	line = malloc(sizeof(char *));
+	fd = open("/Users/jvacaris/get_next_line/gnl_testfile", O_RDONLY);
+	printf("%d", BUFFER_SIZE);
+	while (a > 0)
+	{
+		write(1, "$", 1);
+		a = get_next_line(fd, line);
+		write(1, "$\n", 2);
+		printf("%d\n%s\n", a, *line);
+	}
 }
