@@ -1,6 +1,35 @@
 #include "get_next_line.h"
-#include <unistd.h>
-#include <stdio.h>
+
+char	*ft_calloc(int a)
+{
+	int		b;
+	char	*new;
+
+	b = 0;
+	new = malloc(a);
+	while (b < a)
+	{
+		new[b] = 0;
+		b++;
+	}
+	return (new);
+}
+
+int	eolcheck(char *str)
+{
+	int	a;
+
+	a = 0;
+	if (!str)
+		return (0);
+	while (str[a] != 0)
+	{
+		if (str[a] == '\n')
+			return (1);
+		a++;
+	}
+	return (0);
+}
 
 int	ft_strlen(char *s)
 {
@@ -10,50 +39,6 @@ int	ft_strlen(char *s)
 	while (s[n] != 0)
 		n++;
 	return (n);
-}
-
-int	ft_search(char *s, char c)
-{
-	int	a;
-
-	a = 0;
-	while (s[a] != 0)
-	{
-		if (s[a] == c)
-		{
-			return (a);
-		}
-		a++;
-	}
-	return (-1);
-}
-
-char	*ft_strjoin(char *line, char *str)
-{
-	char	*temp;
-	int		a;
-	int		b;
-
-	a = 0;
-	b = 0;
-	while (str[a] != 0 && str[a] != '\n')
-		a++;
-	temp = malloc(ft_strlen(line) + a + 1);
-	temp[ft_strlen(line) + a] = '\0';
-	a = 0;
-	while (line[a])
-	{
-		temp[a] = line[a];
-		a++;
-	}
-	while (str[b] != 0 && str[b] != '\n')
-	{
-		temp[a + b] = str[b];
-		b++;
-	}
-	free(line);
-	line = malloc(sizeof(char *));
-	return (temp);
 }
 
 char	*ft_strdup(char *s1)
@@ -76,4 +61,36 @@ char	*ft_strdup(char *s1)
 	}
 	s2[cntr2] = 0;
 	return (s2);
+}
+
+char	*ft_join(char *orig, char *add)
+{
+	char	*result;
+	int		a;
+	int		b;
+
+	a = 0;
+	b = 0;
+	if (!orig)
+	{
+		result = ft_strdup(add);
+		free (add);
+		return (result);
+	}
+		
+	result = ft_calloc(ft_strlen(orig) + ft_strlen(add) + 1);
+	while (orig[a])
+	{
+		result[a] = orig[a];
+		a++;
+	}
+	while (add[b])
+	{
+		result[a + b] = add[b];
+		b++;
+	}
+	result[a + b] = 0;
+	free (orig);
+	free (add);
+	return (result);
 }

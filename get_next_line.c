@@ -1,83 +1,112 @@
 #include "get_next_line.h"
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
+
+
+/****************************
+*                           *
+*       GNL       HERE      *
+*                           *
+****************************/
+
+char	*firstpart(char *str)
+{
+	int		a;
+	char	*res;
+
+	a = 0;
+	if (eolcheck(str))
+	{
+		while (str[a] != '\n')
+			a++;
+		res = ft_calloc(a + 1);
+		a = 0;
+		while (str[a] != '\n')
+		{
+			res[a] = str[a];
+			a++;
+		}
+	}
+	else
+		res = ft_strdup(str);
+	return (res);
+}
+
+char	*secondpart(char *str)
+{
+	int		a;
+	int		b;
+	char	*res;
+
+	a = 0;
+	b = 1;
+	if (eolcheck(str))
+	{
+		while (str[a] != '\n')
+			a++;
+		res = ft_strdup(&str[a + 1]);
+		free (str);
+		return (res);
+	}
+	else
+	{
+		free (str);
+		return (NULL);
+	}
+}
 
 int	get_next_line(int fd, char **line)
 {
-	static char	*mem;
-	int			resp;
-	char		*str;
+	static char	*memory;
+	char		*temp;
+	char		*buffr;
+	int			readresult;
 
-	line = malloc(sizeof(char *));
-	if (mem)
+	if (fd <= 0 || !line || BUFFER_SIZE <= 0)
+		return (-1);
+	buffr = NULL;
+	readresult = 1;
+	if (memory)
 	{
-		printf("@");
-		*line = ft_strdup(mem);
-		if (ft_search(mem, '\n') < 0)
-		{
-			printf("|%d|", ft_search(mem, '\n'));
-			free(mem);
-		}
-		else
-		{
-			printf("|%d|", ft_search(mem, '\n'));
-			printf("\n/// %s ///\n", *line);
-			line[ft_search(mem, '\n') + 1] = 0;
-			printf("\n/// %s ///\n", *line);
-			free(line[ft_search(mem, '\n') + 1]);
-			printf("\n/// %s ///\n", *line);
-			str = ft_strdup(&mem[ft_search(mem, '\n') + 1]);
-			free(mem);
-			mem = str;
-			printf("(a) %s", *line);
-			return (1);
-		}
+		buffr = ft_strdup(memory);
+		free (memory);
 	}
-	*line = malloc(sizeof(char *));
-	*line[0] = '\0';
-	while (1)
+	while (!eolcheck(buffr) && readresult > 0)
 	{
-		str = malloc(BUFFER_SIZE + 1);
-		resp = read(fd, str, BUFFER_SIZE);
-		if (resp == 0 || resp == -1)
+		temp = ft_calloc(BUFFER_SIZE + 1);
+		readresult = read(fd, temp, BUFFER_SIZE);
+		if (readresult == -1)
 		{
-			printf("(b) %s", *line);
-			return (resp);
+			free (temp);
+			return (-1);
 		}
-			
-		*line = ft_strjoin(*line, str);
-		if (ft_search(str, '\n') != -1)
-		{
-			mem = ft_strdup(&str[ft_search(str, '\n') + 1]);
-			printf("(c) %s", *line);
-			return (1);
-		}
-		else if (ft_strlen(str) < BUFFER_SIZE)
-		{
-			printf("(d) %s", *line);
-			return (0);
-		}
-			
-		free(str);
+		buffr = ft_join(buffr, temp);
 	}
-	
+	*line = firstpart(buffr);
+	memory = secondpart(buffr);
+//	printf("Memory = '%s'\n", memory);
+	if (!readresult)
+	{
+		free (memory);
+		return (0);
+	}
+	return (1);
 }
 
-
+/*
 int main()
 {
-	int fd;
+	int a = 1;
 	char **line;
-	int actresult;
+	int fd = 1;
+	int b = 0;
 
+	line = malloc(sizeof(char *));
 	fd = open("/Users/jvacaris/get_next_line/gnl_testfile", O_RDONLY);
-	actresult = 1;
-	while (actresult > 0)
+	printf("Buffer size: %d\n", BUFFER_SIZE);
+	while (a > 0 && b < 15)
 	{
-		line = NULL;
-		actresult = get_next_line(fd, line);
-		printf("-\n");
+		a = get_next_line(fd, line);
+		write(1, "LINE SUCCESSFULLY READ! ^_^\n", 28);
+		printf("%d: %s\n\n", a, *line);
+		b++;
 	}
-}
+}*/

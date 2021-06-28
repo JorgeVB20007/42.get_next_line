@@ -28,6 +28,21 @@ void	ft_print(char *str, int f)
 	}
 }
 
+char	*ft_calloc(int a)
+{
+	int		b;
+	char	*new;
+
+	b = 0;
+	new = malloc(a);
+	while (b < a)
+	{
+		new[b] = 0;
+		b++;
+	}
+	return (new);
+}
+
 char	*ft_strdup(char *s1)
 {
 	int		cntr;
@@ -87,22 +102,20 @@ char	*ft_join(char *orig, char *add)
 	b = 0;
 	if (!orig)
 		return (ft_strdup(add));
-
-	result = malloc(ft_strlen(orig) + ft_strlen(add) + 1);
+	result = ft_calloc(ft_strlen(orig) + ft_strlen(add) + 1);
 	while (orig[a])
 	{
 		result[a] = orig[a];
 		a++;
 	}
+	printf("\n\n.%s.\n\n", add);
 	while (add[b])
 	{
+		printf("%c", add[b]);
 		result[a + b] = add[b];
 		b++;
 	}
 	result[a + b] = 0;
-	write(1, " {", 2);
-	ft_print(result, -1);
-	write(1, "}\n", 2);
 	free (orig);
 	return (result);
 }
@@ -117,7 +130,7 @@ char	*linefinder(char *memory)
 		a = ft_search(memory);
 	else
 		a = ft_strlen(memory);
-	str = malloc(a + 1);
+	str = ft_calloc(a + 1);
 	a = 0;
 	while (memory[a] != '\n' && memory[a] != 0)
 	{
@@ -134,20 +147,28 @@ char	*memfinder(char *memory)
 	int		b;
 	char	*str;
 
-	write(1, "$ ", 2);
 	a = 0;
 	if (ft_search(memory) >= 0)
-		a = ft_search(memory);
-	else
-		a = ft_strlen(memory);
-	b = ft_strlen(memory);
-	str = malloc(b - a + 1);
-	while (memory[a] != 0)
 	{
-		str[a] = memory[a];
-		a++;
+		a = ft_search(memory);
 	}
-	str[a] = 0;
+	else
+	{
+		a = ft_strlen(memory);
+	}
+	b = ft_strlen(memory);
+	str = ft_calloc(b - a);
+	b = 0;
+	if (a > 0)
+	{
+		a++;
+		while (memory[a + b] != 0 && memory[a + b] != '\n')
+		{
+			str[b] = memory[b + a];
+			b++;
+		}
+	}
+	str[b] = 0;
 	free (memory);
 	return (str);
 }
@@ -161,18 +182,30 @@ int	get_next_line(int fd, char **line)
 	readresult = 1;
 	if (fd <= 0 || !line || BUFFER_SIZE <= 0)
 		return (-1);
-		if (memory)
-			ft_print(memory, -1);
+	if (memory)
+	{
+		write(1, "\n\nStarting MEMORY: \"", 20);
+		ft_print(memory, -1);
+		write(1, "\"\n", 2);
+	}
 	temp = malloc(BUFFER_SIZE + 1);
 	if (!temp)
 		return (-1);
 	while ((readresult > 0) && (ft_search(memory) == -1))
 	{
-		readresult = read(fd, temp, BUFFER_SIZE);
-		write(1, "\n__ ", 4);
 		if (memory)
+		{
+			write(1, "\n\nACTUAL MEMORY: \"", 18);
 			ft_print(memory, -1);
-		write(1, " __\n", 4);
+			write(1, "\"\n", 2);
+		}
+		readresult = read(fd, temp, BUFFER_SIZE);
+		if (memory)
+		{
+			write(1, "\n\nACTUAL MEMORY: \"", 18);
+			ft_print(memory, -1);
+			write(1, "\"\n", 2);
+		}
 		if (readresult <= -1)
 		{
 			free(temp);
@@ -186,22 +219,19 @@ int	get_next_line(int fd, char **line)
 		ft_print(temp, -1);
 		write(1, "]\n\n", 3);
 		memory = ft_join(memory, temp);
-		write(1, "\n>> ", 4);
-		ft_print(memory, -1);
-		write(1, " <<\n", 4);
 		//printf("\n%s ", memory);
 	}
-	
-	write(1, " :DDDDDDDDDDDDDDDD \n", 20);
 	*line = linefinder(memory);
 	memory = memfinder(memory);
-	free (temp);
+
+	if (temp)
+		free (temp);
 	write(1, "\n***** Memory: [", 16);
 	ft_print(memory, -1);
-	write(1, "] *****\n***** Result: [", 22);
+	write(1, "] *****\n***** Result: [", 23);
 	ft_print(*line, -1);
 	write(1, "] *****\n\n", 9);
-	return (readresult);
+	return (1);
 }
 
 int main()
@@ -212,12 +242,11 @@ int main()
 
 	line = malloc(sizeof(char *));
 	fd = open("/Users/jvacaris/get_next_line/gnl_testfile", O_RDONLY);
-	printf(">> %d\n", BUFFER_SIZE);
+	printf("Buffer size: %d\n", BUFFER_SIZE);
 	while (a > 0)
 	{
-		write(1, "& ", 1);
 		a = get_next_line(fd, line);
-		write(1, "&\n", 2);
-		printf("%c\n%s\n", a + 48, *line);
+		write(1, "&\n\nLINE SUCCESSFULLY READ! ^_^\n", 32);
+		printf("%d: %s\n\n\n", a, *line);
 	}
 }
