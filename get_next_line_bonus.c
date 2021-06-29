@@ -1,4 +1,4 @@
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*firstpart(char *str)
 {
@@ -69,16 +69,16 @@ void	extraspace(char **memory, char **buffr)
 
 int	get_next_line(int fd, char **line)
 {
-	static char	*memory;
+	static char	*memory[FD_SETSIZE];
 	char		*temp;
 	char		*buffr;
 	int			readresult;
 
-	if (fd < 0 || !line || BUFFER_SIZE <= 0)
+	if (fd < 0 || !line || BUFFER_SIZE <= 0 || fd > FD_SETSIZE)
 		return (-1);
 	buffr = NULL;
 	readresult = 1;
-	extraspace(&memory, &buffr);
+	extraspace(&memory[fd], &buffr);
 	while (!eolcheck(buffr) && readresult > 0)
 	{
 		temp = ft_calloc(BUFFER_SIZE + 1);
@@ -90,5 +90,5 @@ int	get_next_line(int fd, char **line)
 		}
 		buffr = ft_join(buffr, temp);
 	}
-	return (finalpart(buffr, line, &memory, readresult));
+	return (finalpart(buffr, line, &memory[fd], readresult));
 }
